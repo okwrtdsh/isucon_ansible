@@ -1,0 +1,9 @@
+---
+
+- name: isucon set up
+  hosts: isucon
+  become: true
+  roles:
+    - common
+    - docker
+    - swarm

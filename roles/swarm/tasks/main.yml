@@ -1,0 +1,26 @@
+- name:  Manager node for docker swarm 
+  debug:
+    var: ansible_default_ipv4.address == manager_private_ip
+- name: Init a new swarm with default parameters
+  community.general.docker_swarm:
+    state: present
+    advertise_addr: "{{ manager_private_ip }}"
+  register: swarm_info
+  when: ansible_default_ipv4.address == manager_private_ip
+
+- name: Add nodes
+  community.general.docker_swarm:
+    state: join
+    advertise_addr: ansible_default_ipv4.address
+    join_token: "{{ hostvars[manager_host_name]['swarm_info'].swarm_facts.JoinTokens.Worker }}"
+    remote_addrs: [ "{{ manager_private_ip }}:2377" ]
+  when: ansible_default_ipv4.address != manager_private_ip
+
+- name: create registry service
+  docker_swarm_service:
+    name: registry
+    image: registry:2
+    publish:
+      - published_port: 5000
+        target_port: 5000
+  when: ansible_default_ipv4.address == manager_private_ip

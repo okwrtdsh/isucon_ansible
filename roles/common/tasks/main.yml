@@ -1,0 +1,6 @@
+- name: Private IPv4
+  debug:
+    var: ansible_default_ipv4.address
+- name: Set a hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"

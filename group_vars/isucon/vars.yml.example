@@ -1,0 +1,9 @@
+---
+
+instance1_public_ip: 1.1.1.1
+instance2_public_ip: 2.2.2.2
+instance3_public_ip: 3.3.3.3
+manager_private_ip: 10.10.10.10
+manager_host_name: instance1
+instance_user: ubuntu
+instance_ssh_private_key_file: /path/key-pair.pem
