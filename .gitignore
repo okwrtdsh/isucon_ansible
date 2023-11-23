@@ -1,2 +1,4 @@
 group_vars/isucon/vars.yml
 .python-version
+deploy_key
+deploy_key.pub

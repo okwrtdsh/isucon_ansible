@@ -1,0 +1,59 @@
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html
+- name: Install git
+  apt:
+    pkg:
+      - git
+    state: latest
+    update_cache: true
+
+- name: Check .ssh dir
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0700'
+
+# - name: Add github.com to known_hosts
+#   ansible.builtin.lineinfile:
+#     dest: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+#     create: yes
+#     state: present
+#     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+#     regexp: "^github\\.com"
+
+- name: Add github.com to known_hosts
+  ansible.builtin.known_hosts:
+   path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+   name: github.com
+   key: "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
+   state: present
+
+- name: Check exists deploy_key
+  ansible.builtin.set_fact:
+    dk: "{{ lookup('pipe', 'ls '+github_repository_deploy_key_file) }}"
+  ignore_errors: True
+
+- name: deploy_key exists
+  debug:
+    msg: "deploy_key exists."
+  when: dk is defined
+
+- name: deploy_key not found
+  debug:
+    msg: "[WARN] deploy_key not found. Please execute gen_deploy_key.sh and retry."
+  when: dk is undefined
+
+- name: Install deploy_key (deploy_key exists)
+  ansible.builtin.copy:
+    content: "{{ lookup('file', github_repository_deploy_key_file) }}"
+    dest: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+    owner: "{{ ansible_user }}"
+    mode: '0600'
+  when: dk is defined
+
+#- name: Git clone/pull git@github.com:USER/REPOSITORY.git (deploy_key exists)
+#  git:
+#    repo: "{{ github_repository }}"
+#    dest: "{{ ansible_env.HOME }}/{{ git_clone_directory_name }}"
+#  when: dk is defined
+

@@ -1,0 +1,7 @@
+---
+
+- name: isucon deploy
+  hosts: isucon
+  become: true
+  roles:
+    - git

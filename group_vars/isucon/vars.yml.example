@@ -7,3 +7,6 @@ manager_private_ip: 10.10.10.10
 manager_host_name: instance1
 instance_user: ubuntu
 instance_ssh_private_key_file: /path/key-pair.pem
+github_repository: git@github.com:USER/REPOSITORY.git
+github_repository_deploy_key_file: deploy_key
+git_clone_directory_name: isucon_git
